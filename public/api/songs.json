@@ -1,0 +1,178 @@
+[
+  {
+    "id": "01",
+    "name": "Asteri",
+    "artist": "Various Artists",
+    "img": "art-01.webp",
+    "src": "music-01.opus",
+    "duration": 301
+  },
+  {
+    "id": "02",
+    "name": "Mou Leipeis",
+    "artist": "Various Artists",
+    "img": "art-02.webp",
+    "src": "music-02.opus",
+    "duration": 276
+  },
+  {
+    "id": "03",
+    "name": "Lust",
+    "artist": "Various Artists",
+    "img": "art-03.webp",
+    "src": "music-03.opus",
+    "duration": 268
+  },
+  {
+    "id": "04",
+    "name": "If You're A Star",
+    "artist": "Various Artists",
+    "img": "art-04.webp",
+    "src": "music-04.opus",
+    "duration": 197
+  },
+  {
+    "id": "05",
+    "name": "Memories",
+    "artist": "Various Artists",
+    "img": "art-05.webp",
+    "src": "music-05.opus",
+    "duration": 197
+  },
+  {
+    "id": "06",
+    "name": "Red River",
+    "artist": "Various Artists",
+    "img": "art-06.webp",
+    "src": "music-06.opus",
+    "duration": 210
+  },
+  {
+    "id": "07",
+    "name": "Apology",
+    "artist": "Various Artists",
+    "img": "art-07.webp",
+    "src": "music-07.opus",
+    "duration": 243
+  },
+  {
+    "id": "08",
+    "name": "Ola Ta Ksehnas",
+    "artist": "Various Artists",
+    "img": "art-08.webp",
+    "src": "music-08.opus",
+    "duration": 292
+  },
+  {
+    "id": "09",
+    "name": "Breath",
+    "artist": "Various Artists",
+    "img": "art-09.webp",
+    "src": "music-09.opus",
+    "duration": 211
+  },
+  {
+    "id": "10",
+    "name": "Mia Pista Apo Fosforo",
+    "artist": "Various Artists",
+    "img": "art-10.webp",
+    "src": "music-10.opus",
+    "duration": 208
+  },
+  {
+    "id": "11",
+    "name": "Secret Love",
+    "artist": "Various Artists",
+    "img": "art-11.webp",
+    "src": "music-11.opus",
+    "duration": 231
+  },
+  {
+    "id": "12",
+    "name": "Sen Gelmez Oldun",
+    "artist": "Various Artists",
+    "img": "art-12.webp",
+    "src": "music-12.opus",
+    "duration": 189
+  },
+  {
+    "id": "13",
+    "name": "Santorini",
+    "artist": "Various Artists",
+    "img": "art-13.webp",
+    "src": "music-13.opus",
+    "duration": 254
+  },
+  {
+    "id": "14",
+    "name": "DESTINO",
+    "artist": "Various Artists",
+    "img": "art-14.webp",
+    "src": "music-14.opus",
+    "duration": 184
+  },
+  {
+    "id": "15",
+    "name": "Meltem",
+    "artist": "Various Artists",
+    "img": "art-15.webp",
+    "src": "music-15.opus",
+    "duration": 236
+  },
+  {
+    "id": "16",
+    "name": "Always",
+    "artist": "Various Artists",
+    "img": "art-16.webp",
+    "src": "music-16.opus",
+    "duration": 211
+  },
+  {
+    "id": "17",
+    "name": "Portitsa",
+    "artist": "Various Artists",
+    "img": "art-17.webp",
+    "src": "music-17.opus",
+    "duration": 198
+  },
+  {
+    "id": "18",
+    "name": "Why - Remix",
+    "artist": "Various Artists",
+    "img": "art-18.webp",
+    "src": "music-18.opus",
+    "duration": 293
+  },
+  {
+    "id": "19",
+    "name": "Sunset In Aegean",
+    "artist": "Various Artists",
+    "img": "art-19.webp",
+    "src": "music-19.opus",
+    "duration": 231
+  },
+  {
+    "id": "20",
+    "name": "Lost Love",
+    "artist": "Various Artists",
+    "img": "art-20.webp",
+    "src": "music-20.opus",
+    "duration": 213
+  },
+  {
+    "id": "21",
+    "name": "Don't Say Goodbye",
+    "artist": "Various Artists",
+    "img": "art-21.webp",
+    "src": "music-21.opus",
+    "duration": 268
+  },
+  {
+    "id": "22",
+    "name": "Strings Pulses",
+    "artist": "Various Artists",
+    "img": "art-22.webp",
+    "src": "music-22.opus",
+    "duration": 249
+  }
+]

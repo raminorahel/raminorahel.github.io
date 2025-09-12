@@ -1,0 +1,32 @@
+---
+import { TITLE, DESCRIPTION } from "@/constants/data";
+---
+
+<header
+  class="header flex flex-col items-center justify-center relative pt-12"
+  id="header"
+>
+  <!-- Header title -->
+  <h1
+    class="scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance"
+  >
+    {TITLE}
+  </h1>
+  <!-- Header Description -->
+  <h2
+    class="scroll-m-20 pt-4 text-md tracking-tight first:mt-0 text-center mb-3 opacity-50"
+  >
+    {DESCRIPTION}
+  </h2>
+</header>
+
+<style>
+  h1 {
+    color: var(--dm-pc-primary);
+    font-family: var(--dm-pc-title-fonts);
+  }
+  h2 {
+    max-width: 19rem;
+    transform: skew(-11.11grad);
+  }
+</style>

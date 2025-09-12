@@ -1,0 +1,158 @@
+html {
+  &.dark {
+    .for-love-hearts {
+      filter: invert(1);
+    }
+  }
+}
+
+.for-love-container {
+  position: relative;
+  display: block;
+}
+
+.for-love-hearts {
+  --_color: var(--fl-heart-color, #f8c8dc);
+  --_size: var(--fl-heart-size, 1rem);
+  --_sway: var(--fl-sway, 5);
+  --_iteration: var(--fl-iteration, infinite);
+  --_duration: var(--fl-duration, 10s);
+  --_ease: var(--fl-ease, ease-in-out);
+
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, black 50%, transparent);
+  -webkit-mask-image: linear-gradient(to top, black 50%, transparent);
+}
+
+.for-love-hearts.scroll-with-window {
+  position: absolute;
+}
+
+.contained .for-love-hearts {
+  position: absolute;
+}
+
+@keyframes goToTopHeart {
+  0% {
+    opacity: 0;
+    translate: 0 100vh;
+    scale: 0.2;
+    margin-left: calc(var(--_sway) * 1px);
+  }
+  10% {
+    opacity: 1;
+  }
+  18% {
+    scale: 1;
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    margin-left: calc(var(--_sway) * -1px);
+  }
+
+  20%,
+  40%,
+  60%,
+  80%,
+  100% {
+    margin-left: calc(var(--_sway) * 1px);
+  }
+  80% {
+    opacity: 1;
+    scale: 1;
+  }
+  100% {
+    translate: 0 -100%;
+    opacity: 0;
+    scale: 0;
+  }
+}
+
+@keyframes goToTopHeartContained {
+  0% {
+    opacity: 0;
+    top: 100%;
+    scale: 0.2;
+    margin-left: calc(var(--_sway) * 1px);
+  }
+  10% {
+    opacity: 1;
+  }
+  18% {
+    scale: 1;
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    margin-left: calc(var(--_sway) * -1px);
+  }
+
+  20%,
+  40%,
+  60%,
+  80%,
+  100% {
+    margin-left: calc(var(--_sway) * 1px);
+  }
+  80% {
+    opacity: 1;
+    scale: 1;
+  }
+  100% {
+    top: 0;
+    opacity: 0;
+    scale: 0;
+  }
+}
+
+.heart {
+  position: absolute;
+  top: 0;
+  margin: auto;
+  left: var(--left, 0);
+  height: var(--_size);
+  width: var(--_size);
+  background-color: var(--_color);
+  opacity: 0;
+  rotate: -45deg;
+  pointer-events: none;
+  animation: goToTopHeart var(--_duration) var(--_iteration) var(--_ease);
+  animation-delay: calc(var(--delay) * 0.1s);
+}
+
+.heart::after,
+.heart::before {
+  background-color: var(--_color);
+  content: "";
+  border-radius: 50%;
+  position: absolute;
+  width: var(--_size);
+  height: var(--_size);
+  top: 0px;
+  left: calc(var(--_size) / 2);
+}
+
+.heart::before {
+  top: calc(var(--_size) / -2);
+  left: 0;
+}
+
+.contained .heart {
+  animation-name: goToTopHeartContained;
+}
+
+@media (prefers-reduced-motion) {
+  .heart,
+  .for-love-hearts {
+    display: none;
+    animation: none;
+  }
+}

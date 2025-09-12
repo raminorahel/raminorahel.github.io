@@ -1,0 +1,85 @@
+---
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { START_DATE, FIRST_DATE, CHILDREN } from "@/constants/data";
+import { Badge } from "@/components/ui/badge";
+
+import { formatDate } from "@/lib/timeFormatters";
+
+import Background from "@/components/partials/Background.astro";
+
+import FadedHr from "@/components/ui/astro/FadedHr.astro";
+import BornDate from "@/components/ui/astro/BornDate.astro";
+
+import LiveTimer from "@/components/LiveTimer";
+---
+
+<main
+  class="main w-full flex flex-col items-center justify-center gap-2.5 mt-5 mb-2.5 relative"
+  id="main"
+>
+  <Background />
+
+  <!-- Starting date -->
+  <h3 class="scroll-m-20 text-lg font-semibold tracking-tight text-center">
+    Relationship Start Date: {formatDate(START_DATE)}
+  </h3>
+  <!-- Detailed Card -->
+  <Card
+    className="w-full flex flex-col gap-0 items-center justify-center text-center bg-transparent m-0 p-0 shadow-none global-card relative"
+  >
+    <CardHeader className="w-full pt-5.5">
+      <h4 class="scroll-m-20 text-lg font-semibold tracking-tight">
+        Detailed Time
+      </h4>
+      <LiveTimer startDate={START_DATE} client:load />
+      <FadedHr />
+    </CardHeader>
+    <CardContent
+      className="flex flex-col items-center justify-center gap-2 m-0 w-full px-5 pb-2.5 pt-4"
+    >
+      <div class="flex flex-row items-center justify-center gap-5 w-full">
+        <BornDate name="Ramin Birthday" date="June 27, 1993" />
+        <BornDate name="Rahel Birthday" date="January 6, 1999" />
+      </div>
+      <div class="flex flex-col items-center justify-center gap-2">
+        <p class="text-muted-foreground text-xs">Children</p>
+        <Badge variant="outline" className="text-sm">
+          {CHILDREN.join(" • ")}
+        </Badge>
+      </div>
+
+      <h4 class="scroll-m-20 text-lg font-semibold tracking-tight mt-3">
+        Total Time
+      </h4>
+      <Card
+        className="w-full p-0 shadow-none rounded-lg total-time_card mb-2.5"
+      >
+        <LiveTimer startDate={START_DATE} showTotal client:load />
+      </Card>
+    </CardContent>
+  </Card>
+  <!-- First date -->
+  <h3 class="scroll-m-20 text-lg font-semibold tracking-tight text-center">
+    First Date: {formatDate(FIRST_DATE)}
+  </h3>
+</main>
+
+<style>
+  main::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 20rem;
+    background-image: linear-gradient(to bottom, white, transparent);
+    z-index: -1;
+  }
+  h3,
+  h4 {
+    color: var(--dm-pc-primary);
+  }
+  .total-time_card {
+    background-color: #ff000013;
+  }
+</style>

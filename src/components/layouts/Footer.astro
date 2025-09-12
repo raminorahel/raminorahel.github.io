@@ -1,0 +1,24 @@
+---
+import { app } from "@/configs/app";
+import { MusicPlayer } from "@/components/partials/MusicPlayer";
+import { ModeToggle } from "@/components/ModeToggle";
+import FullScreenToggle from "@/components/FullScreenToggle";
+---
+
+<footer class="footer relative" id="footer">
+  <div class="flex flex-row items-center justify-center gap-2.5">
+    <ModeToggle client:load />
+    <MusicPlayer apiUrl="/api/songs.json" client:only />
+    <FullScreenToggle client:only />
+  </div>
+  <div class="text-xs text-center opacity-25 mt-5">
+    &copy; {new Date().getFullYear()}
+    {app.name}, All rights reserved.
+  </div>
+</footer>
+
+<style>
+  footer {
+    z-index: 1;
+  }
+</style>
