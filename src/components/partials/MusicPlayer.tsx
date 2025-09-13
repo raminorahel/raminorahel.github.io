@@ -744,26 +744,30 @@ function MusicPlayerDrawer() {
             </div>
 
             {showPlaylist && (
-              <div className="mt-6 border rounded-lg p-4">
+              <div className="mt-6 border rounded-lg overflow-hidden p-4">
                 <div
-                  className="max-h-100 flex flex-col gap-2 overflow-y-auto"
+                  className="max-h-100 rounded overflow-y-auto"
                   ref={playlistRef}
                 >
-                  {songs.map((song) => {
+                  {songs.map((song, index) => {
                     const isLoading = isSongLoading(song.id);
 
                     return (
                       <div
                         key={song.id}
                         data-song-id={song.id}
-                        className={`p-2 rounded cursor-pointer relative border ${
+                        className={`p-2.5 px-3.5 cursor-pointer relative ${
+                          index == songs.length - 1 ? "" : "border-b"
+                        } ${
                           song.id === currentSong.id
                             ? "bg-muted"
                             : "hover:bg-muted/50"
                         } ${isLoading ? "opacity-70" : ""}`}
                         onClick={() => handleSongClick(song)}
                       >
-                        <div className="font-medium">{song.name}</div>
+                        <div className="font-medium">
+                          {[song.id, song.name].join(". ")}
+                        </div>
                         <div className="text-sm text-muted-foreground">
                           {song.artist}
                         </div>
