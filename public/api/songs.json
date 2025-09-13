@@ -105,7 +105,7 @@
   },
   {
     "id": "14",
-    "name": "DESTINO",
+    "name": "Destino",
     "artist": "Various Artists",
     "img": "art-14.webp",
     "src": "music-14.opus",
@@ -137,7 +137,7 @@
   },
   {
     "id": "18",
-    "name": "Why - Remix",
+    "name": "Why (Remix)",
     "artist": "Various Artists",
     "img": "art-18.webp",
     "src": "music-18.opus",
@@ -174,5 +174,53 @@
     "img": "art-22.webp",
     "src": "music-22.opus",
     "duration": 249
+  },
+  {
+    "id": "23",
+    "name": "Gang Love",
+    "artist": "Ali Ardavan",
+    "img": "art-23.webp",
+    "src": "music-23.opus",
+    "duration": 176
+  },
+  {
+    "id": "24",
+    "name": "Rooz Be Rooz",
+    "artist": "Amir Tataloo",
+    "img": "art-24.webp",
+    "src": "music-24.opus",
+    "duration": 209
+  },
+  {
+    "id": "25",
+    "name": "Callin' U",
+    "artist": "Elyanna ft. Tamally Maak",
+    "img": "art-25.webp",
+    "src": "music-25.opus",
+    "duration": 116
+  },
+  {
+    "id": "26",
+    "name": "Joonami",
+    "artist": "Novan",
+    "img": "art-26.webp",
+    "src": "music-26.opus",
+    "duration": 174
+  },
+  {
+    "id": "27",
+    "name": "Mosaken",
+    "artist": "Novan",
+    "img": "art-27.webp",
+    "src": "music-27.opus",
+    "duration": 200
+  },
+  {
+    "id": "28",
+    "name": "Sahebe Sabr",
+    "artist": "Amir Tataloo",
+    "img": "art-28.webp",
+    "src": "music-28.opus",
+    "duration": 839
   }
 ]

@@ -1,5 +1,3 @@
-export const STATIC_NAME = "Datemind Postal Card";
-
 export const app = {
   name: "Raminorahel",
   description:

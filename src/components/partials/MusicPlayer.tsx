@@ -14,7 +14,6 @@ import {
   SkipBack,
   SkipForward,
   ListMusic,
-  X,
   Repeat,
   Repeat1,
   Shuffle,
@@ -23,17 +22,13 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   Drawer,
-  DrawerClose,
   DrawerContent,
   DrawerDescription,
-  DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { app } from "@/configs/app";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Progress } from "@/components/ui/progress";
 
 // Define types
 export interface Song {
@@ -196,6 +191,7 @@ export function MusicPlayerProvider({
     const handleLoadedData = () => {
       setState((prev) => ({
         ...prev,
+        duration: audio.duration || prev.duration,
         currentTime: 0,
         progress: 0,
       }));
@@ -213,16 +209,28 @@ export function MusicPlayerProvider({
       }
     };
 
+    const handlePlay = () => {
+      setState((prev) => ({ ...prev, isPlaying: true }));
+    };
+
+    const handlePause = () => {
+      setState((prev) => ({ ...prev, isPlaying: false }));
+    };
+
     audio.addEventListener("timeupdate", handleTimeUpdate);
     audio.addEventListener("ended", handleEnded);
     audio.addEventListener("loadeddata", handleLoadedData);
     audio.addEventListener("canplaythrough", handleCanPlayThrough);
+    audio.addEventListener("play", handlePlay);
+    audio.addEventListener("pause", handlePause);
 
     return () => {
       audio.removeEventListener("timeupdate", handleTimeUpdate);
       audio.removeEventListener("ended", handleEnded);
       audio.removeEventListener("loadeddata", handleLoadedData);
       audio.removeEventListener("canplaythrough", handleCanPlayThrough);
+      audio.removeEventListener("play", handlePlay);
+      audio.removeEventListener("pause", handlePause);
     };
   }, [state.repeatMode, state.currentSong]);
 
@@ -230,6 +238,18 @@ export function MusicPlayerProvider({
     if (!audioRef.current) return;
 
     const audio = audioRef.current;
+
+    // Pause current playback before changing source
+    audio.pause();
+
+    // Reset state before loading new song
+    setState((prev) => ({
+      ...prev,
+      isPlaying: false,
+      progress: 0,
+      currentTime: 0,
+    }));
+
     audio.src = `/${song.src}`;
 
     // Reset audio loaded state for the new song
@@ -253,8 +273,8 @@ export function MusicPlayerProvider({
     if (state.currentSong && audioRef.current) {
       const audio = loadSong(state.currentSong);
 
-      // Always try to play when song changes if autoPlay is enabled OR if we were already playing
-      if (audio && ((state.isPlaying && autoPlay) || state.isPlaying)) {
+      // Auto-play only if explicitly enabled and state indicates playing
+      if (audio && autoPlay && state.isPlaying) {
         const playPromise = audio.play();
         if (playPromise !== undefined) {
           playPromise.catch((error) => {
@@ -264,27 +284,10 @@ export function MusicPlayerProvider({
         }
       }
     }
-  }, [state.currentSong, autoPlay, state.isPlaying, loadSong]);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-
-    if (state.isPlaying) {
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.catch((error) => {
-          console.error("Playback failed:", error);
-          setState((prev) => ({ ...prev, isPlaying: false }));
-        });
-      }
-    } else {
-      audio.pause();
-    }
-  }, [state.isPlaying]);
+  }, [state.currentSong, autoPlay, loadSong]);
 
   const preloadCoverImage = (song: Song) => {
-    const imgUrl = `/images/smooth/${song.img}`;
+    const imgUrl = `/images/${song.img}`;
 
     // If we've already loaded this image, mark it as loaded
     if (imageLoadRefs.current[song.id]?.complete) {
@@ -322,7 +325,19 @@ export function MusicPlayerProvider({
   );
 
   const togglePlayPause = useCallback(() => {
-    setState((prev) => ({ ...prev, isPlaying: !prev.isPlaying }));
+    if (!audioRef.current) return;
+
+    if (audioRef.current.paused) {
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => {
+          console.error("Playback failed:", error);
+          setState((prev) => ({ ...prev, isPlaying: false }));
+        });
+      }
+    } else {
+      audioRef.current.pause();
+    }
   }, []);
 
   const playPrevious = useCallback(() => {
@@ -520,17 +535,6 @@ function MusicPlayerDrawer() {
     );
   };
 
-  const getSongLoadingProgress = (songId: string) => {
-    const loadingState = songLoadingStates[songId];
-    if (!loadingState) return 0;
-
-    let progress = 0;
-    if (loadingState.coverLoaded) progress += 50;
-    if (loadingState.audioLoaded) progress += 50;
-
-    return progress;
-  };
-
   const handleSongClick = (song: Song) => {
     const isLoading = isSongLoading(song.id);
 
@@ -551,7 +555,11 @@ function MusicPlayerDrawer() {
             <Music className="h-[1.2rem] w-[1.2rem]" />
           </Button>
         </DrawerTrigger>
-        <DrawerContent>
+        <DrawerContent
+          data-vaul-drawer-direction={
+            window.innerWidth >= 640 ? "left" : "bottom"
+          }
+        >
           <div className="mx-auto w-full max-w-sm p-4">
             <Skeleton className="h-8 w-3/4 mx-auto mb-2" />
             <Skeleton className="h-4 w-1/2 mx-auto mb-6" />
@@ -586,7 +594,11 @@ function MusicPlayerDrawer() {
             <Music className="h-[1.2rem] w-[1.2rem]" />
           </Button>
         </DrawerTrigger>
-        <DrawerContent>
+        <DrawerContent
+          data-vaul-drawer-direction={
+            window.innerWidth >= 640 ? "left" : "bottom"
+          }
+        >
           <div className="mx-auto w-full max-w-sm p-4 text-center">
             <p>No songs available</p>
           </div>
@@ -609,8 +621,13 @@ function MusicPlayerDrawer() {
           <Music className="h-[1.2rem] w-[1.2rem]" />
         </Button>
       </DrawerTrigger>
-      <DrawerContent className="w-full">
-        <div className="mx-auto w-full overflow-y-auto mt-4 p-2.5 pt-0 md:px-[15vw] lg:px-[25vw]">
+      <DrawerContent
+        className="w-full"
+        data-vaul-drawer-direction={
+          window.innerWidth >= 640 ? "left" : "bottom"
+        }
+      >
+        <div className="mx-auto w-full overflow-y-auto mt-4 p-2.5 pt-0">
           <DrawerHeader>
             <DrawerTitle>Music Player</DrawerTitle>
             <DrawerDescription>Enjoy your music collection</DrawerDescription>
@@ -618,14 +635,15 @@ function MusicPlayerDrawer() {
 
           <div className="p-4">
             <div className="flex flex-col items-center mb-6">
-              <div className="w-48 h-48 rounded-lg overflow-hidden mb-4 audio-responsive relative">
+              <div className="w-48 h-48 rounded-lg overflow-hidden mb-4 audio-responsive relative border">
+                <div className="w-full h-full absolute top-0 left-0 backdrop-blur-2xl backdrop-brightness-200"></div>
                 {currentSongLoading && (
                   <div className="absolute inset-0 flex items-center justify-center bg-muted/50">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                   </div>
                 )}
                 <img
-                  src={`/images/smooth/${currentSong.img}`}
+                  src={`/images/${currentSong.img}`}
                   alt={`Cover for ${currentSong.name} by ${currentSong.artist}`}
                   className={`w-full h-full object-cover ${
                     currentSongLoading ? "opacity-0" : "opacity-100"
@@ -635,23 +653,11 @@ function MusicPlayerDrawer() {
               </div>
               <h3 className="text-lg font-semibold">{currentSong.name}</h3>
               <p className="text-muted-foreground">{currentSong.artist}</p>
-
-              {currentSongLoading && (
-                <div className="w-full max-w-xs mt-2">
-                  <Progress
-                    value={getSongLoadingProgress(currentSong.id)}
-                    className="h-2"
-                  />
-                  <p className="text-xs text-muted-foreground text-center mt-1">
-                    Loading song...
-                  </p>
-                </div>
-              )}
             </div>
 
             <div className="mb-2">
               <div
-                className="h-2 bg-gray-200 rounded-full cursor-pointer relative overflow-hidden"
+                className="h-2 bg-gray-300 dark:bg-gray-700 rounded-full cursor-pointer relative overflow-hidden"
                 onClick={handleProgressClick}
                 role="progressbar"
                 aria-valuenow={progress}
@@ -659,7 +665,7 @@ function MusicPlayerDrawer() {
                 aria-valuemax={100}
               >
                 <div
-                  className="h-full bg-red-500 rounded-full"
+                  className="h-full bg-red-500 dark:bg-white rounded-full"
                   style={{ width: `${progress}%` }}
                 />
               </div>
@@ -669,7 +675,7 @@ function MusicPlayerDrawer() {
               </div>
             </div>
 
-            <div className="flex items-center justify-center gap-4 mt-6">
+            <div className="flex items-center justify-center gap-4 mt-3">
               <Button
                 variant="ghost"
                 size="icon"
@@ -740,7 +746,7 @@ function MusicPlayerDrawer() {
             {showPlaylist && (
               <div className="mt-6 border rounded-lg p-4">
                 <div
-                  className="max-h-60 flex flex-col gap-2 overflow-y-auto"
+                  className="max-h-100 flex flex-col gap-2 overflow-y-auto"
                   ref={playlistRef}
                 >
                   {songs.map((song) => {
@@ -750,7 +756,7 @@ function MusicPlayerDrawer() {
                       <div
                         key={song.id}
                         data-song-id={song.id}
-                        className={`p-2 rounded cursor-pointer relative ${
+                        className={`p-2 rounded cursor-pointer relative border ${
                           song.id === currentSong.id
                             ? "bg-muted"
                             : "hover:bg-muted/50"

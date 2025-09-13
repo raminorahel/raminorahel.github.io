@@ -1,14 +1,22 @@
 ---
 import "@/styles/global.css";
-import ThemeMeta from "@/components/ui/astro/ThemeMeta.astro";
-import { app, STATIC_NAME } from "@/configs/app";
+import { app } from "@/configs/app";
 ---
 
 <html lang="en">
   <head>
-    <ThemeMeta />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
+    <meta
+      name="theme-color"
+      content="#fff"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#000"
+      media="(prefers-color-scheme: dark)"
+    />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="description" content={app.description} />
     <script>
@@ -23,7 +31,7 @@ import { app, STATIC_NAME } from "@/configs/app";
       });
     </script>
     <meta name="generator" content={Astro.generator} />
-    <title>{app.name} | {STATIC_NAME}</title>
+    <title>{app.name}</title>
   </head>
   <body>
     <div
