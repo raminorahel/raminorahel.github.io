@@ -9,7 +9,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/pwa" element={<PWA />} />
+          <Route path="/~" element={<PWA />} />
         </Routes>
       </Router>
     </ThemeProvider>

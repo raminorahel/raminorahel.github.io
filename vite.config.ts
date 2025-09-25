@@ -28,7 +28,7 @@ export default defineConfig({
         short_name: info.pwa.name,
         description: info.pwa.description,
         theme_color: "#000",
-        start_url: "/pwa",
+        start_url: "/~",
       },
 
       injectManifest: {
