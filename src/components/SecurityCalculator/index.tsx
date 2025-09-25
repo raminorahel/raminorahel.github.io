@@ -427,7 +427,7 @@ const SecurityCalculator: React.FC = () => {
           className?: string;
         }) => {
           const baseClasses =
-            "h-[9vh] rounded-3xl md:rounded-4xl text-2xl md:text-3xl font-medium transition-all active:scale-95 cursor-pointer";
+            "h-[8vh] rounded-3xl md:rounded-4xl text-2xl md:text-3xl font-medium transition-all active:scale-95 cursor-pointer";
 
           const variantClasses = {
             default: "bg-gray-500 hover:bg-gray-400 text-white",
