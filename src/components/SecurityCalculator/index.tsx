@@ -477,7 +477,7 @@ const SecurityCalculator: React.FC = () => {
 
   return (
     <div
-      className="h-full flex flex-col items-center justify-end px-3.5 py-5 relative"
+      className="h-screen flex flex-col items-center justify-end px-3.5 py-5 relative"
       onClick={handleBackgroundClick}
     >
       <div
