@@ -19,8 +19,7 @@ export default defineConfig({
       injectRegister: false,
 
       pwaAssets: {
-        disabled: false,
-        config: true,
+        disabled: true,
       },
 
       manifest: {
@@ -29,6 +28,38 @@ export default defineConfig({
         description: info.pwa.description,
         theme_color: "#000",
         start_url: "/~",
+        icons: [
+          {
+            src: "/pwa/icon-48x48.png",
+            sizes: "48x48",
+            type: "image/png",
+          },
+          {
+            src: "/pwa/icon-72x72.png",
+            sizes: "72x72",
+            type: "image/png",
+          },
+          {
+            src: "/pwa/icon-96x96.png",
+            sizes: "96x96",
+            type: "image/png",
+          },
+          {
+            src: "/pwa/icon-144x144.png",
+            sizes: "144x144",
+            type: "image/png",
+          },
+          {
+            src: "/pwa/icon-192x192.png",
+            sizes: "192x192",
+            type: "image/png",
+          },
+          {
+            src: "/pwa/icon-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+          },
+        ],
       },
 
       injectManifest: {
