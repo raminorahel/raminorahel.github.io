@@ -427,7 +427,7 @@ const SecurityCalculator: React.FC = () => {
           className?: string;
         }) => {
           const baseClasses =
-            "h-15 md:h-20 rounded-3xl md:rounded-4xl text-2xl md:text-3xl font-medium transition-all active:scale-95 cursor-pointer";
+            "h-[9vh] rounded-3xl md:rounded-4xl text-2xl md:text-3xl font-medium transition-all active:scale-95 cursor-pointer";
 
           const variantClasses = {
             default: "bg-gray-500 hover:bg-gray-400 text-white",
@@ -477,7 +477,7 @@ const SecurityCalculator: React.FC = () => {
 
   return (
     <div
-      className="h-[100vh] flex flex-col items-center justify-end px-3.5 py-5 relative"
+      className="fixed w-full bottom-0 flex flex-col items-center justify-end px-3.5 py-5"
       onClick={handleBackgroundClick}
     >
       <div
