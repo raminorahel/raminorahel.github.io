@@ -229,7 +229,7 @@ const calculateResult = (a: number, b: number, operation: string): number => {
 const SecurityCalculator: React.FC = () => {
   const [state, dispatch] = useReducer(calculatorReducer, initialState);
   const [iframeVisible, setIframeVisible] = useState(false);
-  const [securityBreach, setSecurityBreach] = useState(false);
+  const [_, setSecurityBreach] = useState(false);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const inputSequenceRef = useRef<string[]>([]);
