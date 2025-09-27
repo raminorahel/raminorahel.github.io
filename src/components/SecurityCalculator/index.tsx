@@ -9,6 +9,18 @@ import React, {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { info } from "@/configs/default";
+import {
+  BrushCleaning,
+  Diff,
+  Divide,
+  Equal,
+  Eraser,
+  Minus,
+  Percent,
+  Plus,
+  Trash,
+  X,
+} from "lucide-react";
 
 interface CalculatorState {
   display: string;
@@ -16,12 +28,14 @@ interface CalculatorState {
   operation: string | null;
   waitingForNewValue: boolean;
   expression: string;
+  shouldResetDisplay: boolean;
 }
 
 type CalculatorAction =
   | { type: "INPUT_NUMBER"; payload: string }
   | { type: "INPUT_DECIMAL" }
-  | { type: "CLEAR_DISPLAY" }
+  | { type: "CLEAR_ALL" }
+  | { type: "CLEAR_ENTRY" }
   | { type: "TOGGLE_SIGN" }
   | { type: "INPUT_PERCENTAGE" }
   | { type: "BACKSPACE" }
@@ -34,6 +48,7 @@ const initialState: CalculatorState = {
   operation: null,
   waitingForNewValue: false,
   expression: "",
+  shouldResetDisplay: false,
 };
 
 const calculatorReducer = (
@@ -42,18 +57,15 @@ const calculatorReducer = (
 ): CalculatorState => {
   switch (action.type) {
     case "INPUT_NUMBER":
-      if (state.waitingForNewValue) {
-        const newExpression =
-          state.previousValue !== null
-            ? `${state.previousValue} ${state.operation || ""} ${
-                action.payload
-              }`
-            : action.payload;
+      if (state.waitingForNewValue || state.shouldResetDisplay) {
         return {
           ...state,
           display: action.payload,
           waitingForNewValue: false,
-          expression: newExpression,
+          shouldResetDisplay: false,
+          expression: state.operation
+            ? `${state.display} ${state.operation} ${action.payload}`
+            : action.payload,
         };
       }
       return {
@@ -62,50 +74,65 @@ const calculatorReducer = (
           state.display === "0"
             ? action.payload
             : state.display + action.payload,
-        expression:
-          state.expression === ""
-            ? action.payload
-            : state.expression + action.payload,
+        expression: state.operation
+          ? `${state.previousValue} ${state.operation} ${
+              state.display === "0"
+                ? action.payload
+                : state.display + action.payload
+            }`
+          : state.display === "0"
+          ? action.payload
+          : state.display + action.payload,
       };
 
     case "INPUT_DECIMAL":
-      if (state.waitingForNewValue) {
+      if (state.waitingForNewValue || state.shouldResetDisplay) {
         return {
           ...state,
           display: "0.",
           waitingForNewValue: false,
-          expression: "0.",
+          shouldResetDisplay: false,
         };
       }
-      return state.display.includes(".")
-        ? state
-        : {
-            ...state,
-            display: state.display + ".",
-            expression: state.expression + ".",
-          };
+      if (state.display.includes(".")) return state;
+      return {
+        ...state,
+        display: state.display + ".",
+      };
 
-    case "CLEAR_DISPLAY":
+    case "CLEAR_ALL":
       return initialState;
+
+    case "CLEAR_ENTRY":
+      return {
+        ...state,
+        display: "0",
+        shouldResetDisplay: false,
+      };
 
     case "TOGGLE_SIGN":
       const newValue = parseFloat(state.display) * -1;
       return {
         ...state,
         display: newValue.toString(),
-        expression: state.expression
-          ? `negate(${state.display})`
-          : newValue.toString(),
       };
 
     case "INPUT_PERCENTAGE":
-      const value = parseFloat(state.display) / 100;
+      const currentValue = parseFloat(state.display);
+      let percentageValue: number;
+
+      if (state.operation && state.previousValue !== null) {
+        // اگر عملیاتی در جریان است، درصد نسبت به مقدار قبلی محاسبه شود
+        percentageValue = (state.previousValue * currentValue) / 100;
+      } else {
+        // در غیر این صورت درصد ساده
+        percentageValue = currentValue / 100;
+      }
+
       return {
         ...state,
-        display: value.toString(),
-        expression: state.expression
-          ? `(${state.expression}) / 100`
-          : value.toString(),
+        display: percentageValue.toString(),
+        shouldResetDisplay: true,
       };
 
     case "BACKSPACE":
@@ -116,58 +143,65 @@ const calculatorReducer = (
         return {
           ...state,
           display: "0",
-          expression: state.expression.slice(0, -1),
         };
       }
-      const newDisplay = state.display.slice(0, -1);
       return {
         ...state,
-        display: newDisplay,
-        expression: state.expression.slice(0, -1),
+        display: state.display.slice(0, -1),
       };
 
     case "SET_OPERATION":
-      const inputValue = parseFloat(state.display);
+      if (
+        state.operation &&
+        state.previousValue !== null &&
+        !state.waitingForNewValue
+      ) {
+        // اگر عملیات قبلی وجود دارد، ابتدا آن را محاسبه کن
+        const currentInput = parseFloat(state.display);
+        let result = calculateResult(
+          state.previousValue,
+          currentInput,
+          state.operation
+        );
+
+        return {
+          display: result.toString(),
+          previousValue: result,
+          operation: action.payload,
+          waitingForNewValue: true,
+          expression: `${result} ${action.payload}`,
+          shouldResetDisplay: false,
+        };
+      }
+
       return {
         ...state,
-        previousValue: inputValue,
+        previousValue: parseFloat(state.display),
         operation: action.payload,
         waitingForNewValue: true,
-        expression: `${inputValue} ${action.payload}`,
+        expression: state.expression
+          ? `${state.expression} ${action.payload}`
+          : `${state.display} ${action.payload}`,
+        shouldResetDisplay: false,
       };
 
     case "CALCULATE":
       if (state.previousValue === null || !state.operation) return state;
 
       const currentInput = parseFloat(state.display);
-      let result = 0;
-
-      switch (state.operation) {
-        case "+":
-          result = state.previousValue + currentInput;
-          break;
-        case "-":
-          result = state.previousValue - currentInput;
-          break;
-        case "×":
-          result = state.previousValue * currentInput;
-          break;
-        case "÷":
-          if (currentInput === 0) {
-            return {
-              ...initialState,
-              display: "Error",
-            };
-          }
-          result = state.previousValue / currentInput;
-          break;
-        default:
-          return state;
-      }
+      const result = calculateResult(
+        state.previousValue,
+        currentInput,
+        state.operation
+      );
 
       return {
-        ...initialState,
-        display: String(Math.round(result * 100000000) / 100000000),
+        display: result.toString(),
+        previousValue: result,
+        operation: null,
+        waitingForNewValue: true,
+        expression: `${state.previousValue} ${state.operation} ${currentInput} = ${result}`,
+        shouldResetDisplay: true,
       };
 
     default:
@@ -175,15 +209,50 @@ const calculatorReducer = (
   }
 };
 
+// تابع کمکی برای محاسبات
+const calculateResult = (a: number, b: number, operation: string): number => {
+  switch (operation) {
+    case "+":
+      return a + b;
+    case "-":
+      return a - b;
+    case "×":
+      return a * b;
+    case "÷":
+      if (b === 0) throw new Error("Division by zero");
+      return a / b;
+    default:
+      return b;
+  }
+};
+
 const SecurityCalculator: React.FC = () => {
   const [state, dispatch] = useReducer(calculatorReducer, initialState);
   const [iframeVisible, setIframeVisible] = useState(false);
-  const [_, setSecurityBreach] = useState(false);
+  const [securityBreach, setSecurityBreach] = useState(false);
 
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const inputSequenceRef = useRef<string[]>([]);
 
-  // حذف stateRef و استفاده مستقیم از state
+  // تعیین متن دکمه Clear (AC/CE)
+  const clearButtonText = useMemo(() => {
+    return state.display === "0" || state.shouldResetDisplay ? (
+      <Trash className="scale-150" />
+    ) : (
+      <BrushCleaning className="scale-150" />
+    );
+  }, [state.display, state.shouldResetDisplay]);
+
+  // تابع clear با منطق AC/CE
+  const handleClear = useCallback(() => {
+    if (state.display === "0" || state.shouldResetDisplay) {
+      dispatch({ type: "CLEAR_ALL" });
+    } else {
+      dispatch({ type: "CLEAR_ENTRY" });
+    }
+    checkSecretCode("AC");
+  }, [state.display, state.shouldResetDisplay]);
+
   const getFontSize = useCallback((numberStr: string): string => {
     const length = numberStr.replace(".", "").length;
     if (length <= 6) return "text-7xl";
@@ -209,21 +278,31 @@ const SecurityCalculator: React.FC = () => {
       setIframeVisible(true);
       setSecurityBreach(false);
       inputSequenceRef.current = [];
-      dispatch({ type: "CLEAR_DISPLAY" });
+      dispatch({ type: "CLEAR_ALL" });
     }
   }, []);
 
-  // 🔥 حذف کامل interval و جایگزینی با event-based monitoring
   const monitorSecurity = useCallback(() => {
     if (!iframeVisible) return;
 
     try {
-      // روش سبک‌تر برای تشخیص dev tools
+      // روش بهبود یافته برای تشخیص dev tools
+      const start = Date.now();
+      console.log("Security Check");
+      console.clear();
+      const diff = Date.now() - start;
+
+      const isDevToolsOpen = diff > 100;
       const widthDiff = window.outerWidth - window.innerWidth;
       const heightDiff = window.outerHeight - window.innerHeight;
-      const isDevToolsOpen = widthDiff > 160 || heightDiff > 160;
 
-      if (isDevToolsOpen || document.hidden || !navigator.onLine) {
+      if (
+        isDevToolsOpen ||
+        widthDiff > 200 ||
+        heightDiff > 200 ||
+        document.hidden ||
+        !navigator.onLine
+      ) {
         setSecurityBreach(true);
         setIframeVisible(false);
       }
@@ -233,12 +312,10 @@ const SecurityCalculator: React.FC = () => {
     }
   }, [iframeVisible]);
 
-  // 🔥 بهینه‌سازی event handlers - فقط یک بار attach می‌شوند
   useEffect(() => {
     if (!iframeVisible) return;
 
     const handleSecurityEvent = (event: Event) => {
-      // جلوگیری از F12 و right-click
       if (event.type === "keydown" && (event as KeyboardEvent).key === "F12") {
         event.preventDefault();
         setSecurityBreach(true);
@@ -253,7 +330,6 @@ const SecurityCalculator: React.FC = () => {
         return;
       }
 
-      // برای resize و visibilitychange بررسی امنیت
       if (event.type === "resize" || event.type === "visibilitychange") {
         monitorSecurity();
       }
@@ -264,19 +340,21 @@ const SecurityCalculator: React.FC = () => {
       window.addEventListener(event, handleSecurityEvent, { passive: false });
     });
 
+    // چک دوره‌ای امنیت
+    const interval = setInterval(monitorSecurity, 1000);
+
     return () => {
       events.forEach((event) => {
         window.removeEventListener(event, handleSecurityEvent);
       });
+      clearInterval(interval);
     };
   }, [iframeVisible, monitorSecurity]);
 
-  // 🔥 ساده‌سازی event handlers با dispatch مستقیم
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       const key = e.key;
 
-      // فقط برای کلیدهای مربوطه preventDefault
       if (
         [
           "0",
@@ -339,8 +417,7 @@ const SecurityCalculator: React.FC = () => {
           checkSecretCode("=");
           break;
         case "Delete":
-          dispatch({ type: "CLEAR_DISPLAY" });
-          checkSecretCode("AC");
+          handleClear();
           break;
         case "Backspace":
           dispatch({ type: "BACKSPACE" });
@@ -351,10 +428,9 @@ const SecurityCalculator: React.FC = () => {
           break;
       }
     },
-    [checkSecretCode]
+    [checkSecretCode, handleClear]
   );
 
-  // 🔥 فقط یک event listener با وابستگی ساده
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
@@ -370,7 +446,6 @@ const SecurityCalculator: React.FC = () => {
     [iframeVisible]
   );
 
-  // 🔥 استفاده از useCallback فقط برای توابعی که به JSX پاس داده می‌شوند
   const inputNumber = useCallback(
     (num: string) => {
       dispatch({ type: "INPUT_NUMBER", payload: num });
@@ -382,11 +457,6 @@ const SecurityCalculator: React.FC = () => {
   const inputDecimal = useCallback(() => {
     dispatch({ type: "INPUT_DECIMAL" });
     checkSecretCode(".");
-  }, [checkSecretCode]);
-
-  const clearDisplay = useCallback(() => {
-    dispatch({ type: "CLEAR_DISPLAY" });
-    checkSecretCode("AC");
   }, [checkSecretCode]);
 
   const toggleSign = useCallback(() => {
@@ -411,7 +481,6 @@ const SecurityCalculator: React.FC = () => {
     [checkSecretCode]
   );
 
-  // 🔥 کامپوننت دکمه با استفاده از useMemo
   const CalculatorButton = useMemo(
     () =>
       React.memo(
@@ -427,7 +496,7 @@ const SecurityCalculator: React.FC = () => {
           className?: string;
         }) => {
           const baseClasses =
-            "h-[8vh] rounded-3xl md:rounded-4xl text-2xl md:text-3xl font-medium transition-all active:scale-95 cursor-pointer";
+            "h-[9vh] rounded-3xl md:rounded-4xl text-2xl md:text-3xl font-medium transition-all active:scale-95 cursor-pointer";
 
           const variantClasses = {
             default: "bg-gray-500 hover:bg-gray-400 text-white",
@@ -441,6 +510,9 @@ const SecurityCalculator: React.FC = () => {
               onClick={onClick}
               size="lg"
               variant="secondary"
+              style={{
+                height: "calc((100vh / 2.75) / 4)",
+              }}
             >
               {children}
             </Button>
@@ -489,7 +561,7 @@ const SecurityCalculator: React.FC = () => {
       >
         <Card className="w-full bg-transparent border-0 shadow-none mx-auto py-0">
           <CardContent className="p-0">
-            <div className="h-40 flex flex-col items-end justify-end p-4">
+            <div className="h-40 flex flex-col items-end justify-end py-4 px-2">
               {state.expression && (
                 <div className="text-gray-400 text-sm md:text-lg mb-2 truncate w-full text-right px-2">
                   {state.expression}
@@ -505,20 +577,20 @@ const SecurityCalculator: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-4 gap-2 md:gap-3 p-2 md:p-3">
-              <CalculatorButton variant="special" onClick={clearDisplay}>
-                AC
+              <CalculatorButton variant="special" onClick={handleClear}>
+                {clearButtonText}
               </CalculatorButton>
               <CalculatorButton variant="special" onClick={toggleSign}>
-                ±
+                <Diff className="scale-150" />
               </CalculatorButton>
               <CalculatorButton variant="special" onClick={inputPercentage}>
-                %
+                <Percent className="scale-150" />
               </CalculatorButton>
               <CalculatorButton
                 variant="operator"
                 onClick={() => performOperation("÷")}
               >
-                ÷
+                <Divide className="scale-150" />
               </CalculatorButton>
 
               <CalculatorButton onClick={() => inputNumber("7")}>
@@ -534,7 +606,7 @@ const SecurityCalculator: React.FC = () => {
                 variant="operator"
                 onClick={() => performOperation("×")}
               >
-                ×
+                <X className="scale-150" />
               </CalculatorButton>
 
               <CalculatorButton onClick={() => inputNumber("4")}>
@@ -550,7 +622,7 @@ const SecurityCalculator: React.FC = () => {
                 variant="operator"
                 onClick={() => performOperation("-")}
               >
-                –
+                <Minus className="scale-150" />
               </CalculatorButton>
 
               <CalculatorButton onClick={() => inputNumber("1")}>
@@ -566,14 +638,16 @@ const SecurityCalculator: React.FC = () => {
                 variant="operator"
                 onClick={() => performOperation("+")}
               >
-                +
+                <Plus className="scale-150" />
               </CalculatorButton>
+
               <CalculatorButton
                 variant="special"
                 onClick={() => dispatch({ type: "BACKSPACE" })}
               >
-                BS
+                <Eraser className="scale-150" />
               </CalculatorButton>
+
               <CalculatorButton onClick={() => inputNumber("0")}>
                 0
               </CalculatorButton>
@@ -582,7 +656,7 @@ const SecurityCalculator: React.FC = () => {
                 variant="operator"
                 onClick={() => performOperation("=")}
               >
-                =
+                <Equal className="scale-150" />
               </CalculatorButton>
             </div>
           </CardContent>
