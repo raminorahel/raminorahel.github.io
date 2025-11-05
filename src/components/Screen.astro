@@ -1,0 +1,12 @@
+---
+import { info } from "../configs/default";
+
+import MkUrl from "../utils/mkUrl";
+---
+
+<div class="fixed inset-0 transition-all duration-500 z-40">
+  <iframe
+    src={new MkUrl(info.domains.provider).build(info.name)}
+    class="w-dvw h-dvh border-0"
+    allow="autoplay; encrypted-media; fullscreen"></iframe>
+</div>
